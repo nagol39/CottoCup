@@ -1,0 +1,1 @@
+This bundle is a demo. Tailwind and Next versions are suggestions — if you already have a project, copy `app/` files into your Next.js app.
