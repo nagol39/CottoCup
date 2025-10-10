@@ -177,7 +177,8 @@ export default function AdminPage() {
             ? 'eu1.jpg'
             : 'us1.jpg',
     });
-  setIsEditing(true)
+    setIsEditing(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // ✅ Delete player
@@ -241,26 +242,60 @@ export default function AdminPage() {
           <option value="Left">Left</option>
         </select>
 
-        {/* Photo selection dropdown */}
-        <select
-          name="photo"
-          value={formData.photo}
-          onChange={handleChange}
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-        >
-          <option value="">Select a photo...</option>
-          {photoList.map((filename) => (
-            <option key={filename} value={filename}>{filename}</option>
-          ))}
-        </select>
+        {/* Photo selection/upload choice */}
+        <div className="mb-3">
+          <label className="block font-semibold mb-2">Photo:</label>
+          <div className="flex gap-4 mb-2">
+            <button
+              type="button"
+              className={`px-3 py-1 rounded border ${formData.photo === '' ? 'bg-blue-100 border-blue-600 font-bold' : 'bg-gray-100 border-gray-300'}`}
+              onClick={() => setFormData({ ...formData, photo: '' })}
+            >
+              Upload a photo
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 rounded border ${formData.photo !== '' ? 'bg-blue-100 border-blue-600 font-bold' : 'bg-gray-100 border-gray-300'}`}
+              onClick={() => setFormData({ ...formData, photo: photoList[0] || '' })}
+            >
+              Select a photo from list
+            </button>
+          </div>
+          {/* Upload input only if photo is blank */}
+          {formData.photo === '' && (
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="border border-gray-300 rounded w-full p-2 mb-3"
+            />
+          )}
+          {/* Photo grid only if selecting from list */}
+          {formData.photo !== '' && (
+            <div
+              className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 border rounded bg-gray-50"
+              style={{ minHeight: '120px' }}
+            >
+              {photoList.map((filename) => (
+                <button
+                  type="button"
+                  key={filename}
+                  className={`border rounded p-1 flex flex-col items-center hover:border-blue-500 focus:border-blue-600 ${formData.photo === filename ? 'border-2 border-blue-600' : ''}`}
+                  onClick={() => setFormData({ ...formData, photo: filename })}
+                >
+                  <img
+                    src={`/photos/players/${filename}`}
+                    alt={filename}
+                    className="h-16 w-16 object-cover rounded mb-1"
+                  />
+                  <span className="text-xs truncate w-16">{filename}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Photo upload */}
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-        />
+
 
         <input
           type="text"
@@ -276,7 +311,8 @@ export default function AdminPage() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white rounded py-2 font-semibold hover:bg-blue-700 transition"
+          className={`w-full rounded py-2 font-semibold transition ${formData.handicap === '' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+          disabled={formData.handicap === ''}
         >
           {isEditing ? 'Update Player' : 'Add Player'}
         </button>
