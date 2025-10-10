@@ -24,6 +24,53 @@ export default function AdminPage() {
   const [photoList, setPhotoList] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [sortBy, setSortBy] = useState<'name'|'team'|'handedness'|'handicap'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc'|'desc'>('asc');
+  // Sort players array based on sortBy and sortOrder
+  const sortedPlayers = [...players].sort((a, b) => {
+    if (sortBy === 'team') {
+      // Custom sort: USA first (asc), Europe first (desc), both alphabetical by name
+      if (a.team === b.team) {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortOrder === 'asc') {
+        return a.team === 'USA' ? -1 : 1;
+      } else {
+        return a.team === 'Europe' ? -1 : 1;
+      }
+    } else if (sortBy === 'handedness') {
+      // Custom sort: Right first (asc), Left first (desc), both alphabetical by name
+      if (a.handedness === b.handedness) {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortOrder === 'asc') {
+        return a.handedness === 'Right' ? -1 : 1;
+      } else {
+        return a.handedness === 'Left' ? -1 : 1;
+      }
+    } else if (sortBy === 'handicap') {
+      let valA = parseFloat(a.handicap as any) || 0;
+      let valB = parseFloat(b.handicap as any) || 0;
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    } else {
+      let valA = (a[sortBy] || '').toString().toLowerCase();
+      let valB = (b[sortBy] || '').toString().toLowerCase();
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    }
+  });
+
+  const handleSort = (category: 'name'|'team'|'handedness'|'handicap') => {
+    if (sortBy === category) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(category);
+      setSortOrder('asc');
+    }
+  };
 
   // ✅ Fetch players from the admin API on load
   useEffect(() => {
@@ -227,16 +274,36 @@ export default function AdminPage() {
         <table className="w-full border-collapse border border-gray-300 text-left">
           <thead className="bg-gray-200">
             <tr>
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Team</th>
-              <th className="border p-2">Handedness</th>
-              <th className="border p-2">Handicap</th>
+              <th
+                className={`border p-2 cursor-pointer ${sortBy === 'name' ? 'bg-blue-100 font-bold' : ''}`}
+                onClick={() => handleSort('name')}
+              >
+                Name {sortBy === 'name' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th
+                className={`border p-2 cursor-pointer ${sortBy === 'team' ? 'bg-blue-100 font-bold' : ''}`}
+                onClick={() => handleSort('team')}
+              >
+                Team {sortBy === 'team' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th
+                className={`border p-2 cursor-pointer ${sortBy === 'handedness' ? 'bg-blue-100 font-bold' : ''}`}
+                onClick={() => handleSort('handedness')}
+              >
+                Handedness {sortBy === 'handedness' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th
+                className={`border p-2 cursor-pointer ${sortBy === 'handicap' ? 'bg-blue-100 font-bold' : ''}`}
+                onClick={() => handleSort('handicap')}
+              >
+                Handicap {sortBy === 'handicap' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+              </th>
               <th className="border p-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {players.length > 0 ? (
-              players.map((player) => (
+            {sortedPlayers.length > 0 ? (
+              sortedPlayers.map((player) => (
                 <tr key={player.id} className="hover:bg-gray-50">
                   <td className="border p-2">{player.name}</td>
                   <td className="border p-2">{player.team}</td>
