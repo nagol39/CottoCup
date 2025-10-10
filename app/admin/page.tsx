@@ -206,115 +206,127 @@ export default function AdminPage() {
       {/* Player Form */}
       <form
         onSubmit={handleSubmit}
-        className="mb-8 border border-gray-300 rounded-xl p-4 bg-gray-50 shadow-sm max-w-md mx-auto"
+        className="mb-8 border border-gray-300 rounded-xl p-4 bg-gray-50 shadow-sm max-w-3xl mx-auto"
       >
         <h2 className="text-xl font-semibold mb-4">
           {isEditing ? 'Edit Player' : 'Add New Player'}
         </h2>
-
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Player Name"
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-          required
-        />
-
-        <select
-          name="team"
-          value={formData.team}
-          onChange={handleChange}
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-        >
-          <option value="USA">Team USA</option>
-          <option value="Europe">Team Europe</option>
-        </select>
-
-
-        <select
-          name="handedness"
-          value={formData.handedness}
-          onChange={handleChange}
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-        >
-          <option value="Right">Right</option>
-          <option value="Left">Left</option>
-        </select>
-
-        <input
-          type="text"
-          name="handicap"
-          value={formData.handicap}
-          onChange={handleChange}
-          placeholder="Enter handicap here"
-          inputMode="decimal"
-          pattern="[0-9.]*"
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-          style={{ MozAppearance: 'textfield' }}
-        />
-
-        {/* Photo selection/upload choice */}
-        <div className="mb-3">
-          <label className="block font-semibold mb-2">Photo:</label>
-          <div className="flex gap-4 mb-2">
-            <button
-              type="button"
-              className={`px-3 py-1 rounded border ${formData.photo === '' ? 'bg-blue-100 border-blue-600 font-bold' : 'bg-gray-100 border-gray-300'}`}
-              onClick={() => setFormData({ ...formData, photo: '' })}
-            >
-              Upload a photo
-            </button>
-            <button
-              type="button"
-              className={`px-3 py-1 rounded border ${formData.photo !== '' ? 'bg-blue-100 border-blue-600 font-bold' : 'bg-gray-100 border-gray-300'}`}
-              onClick={() => setFormData({ ...formData, photo: photoList[0] || '' })}
-            >
-              Select a photo from list
-            </button>
-          </div>
-          {/* Upload input only if photo is blank */}
-          {formData.photo === '' && (
+        <div className="flex flex-row gap-8">
+          <div className="flex-1 items-start">
             <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Player Name"
               className="border border-gray-300 rounded w-full p-2 mb-3"
+              required
             />
-          )}
-          {/* Photo grid only if selecting from list */}
-          {formData.photo !== '' && (
-            <div
-              className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 border rounded bg-gray-50"
-              style={{ minHeight: '120px' }}
+            <select
+              name="team"
+              value={formData.team}
+              onChange={handleChange}
+              className="border border-gray-300 rounded w-full p-2 mb-3"
             >
-              {photoList.map((filename) => (
+              <option value="USA">Team USA</option>
+              <option value="Europe">Team Europe</option>
+            </select>
+            <select
+              name="handedness"
+              value={formData.handedness}
+              onChange={handleChange}
+              className="border border-gray-300 rounded w-full p-2 mb-3"
+            >
+              <option value="Right">Right</option>
+              <option value="Left">Left</option>
+            </select>
+            <input
+              type="text"
+              name="handicap"
+              value={formData.handicap}
+              onChange={handleChange}
+              placeholder="Enter handicap here"
+              inputMode="decimal"
+              pattern="[0-9.]*"
+              className="border border-gray-300 rounded w-full p-2 mb-3"
+              style={{ MozAppearance: 'textfield' }}
+            />
+            <button
+              type="submit"
+              className={`w-full rounded py-2 font-semibold transition ${formData.handicap === '' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              disabled={formData.handicap === ''}
+            >
+              {isEditing ? 'Update Player' : 'Add Player'}
+            </button>
+            {isEditing && (
+              <button
+                type="button"
+                className="w-full rounded py-2 font-semibold bg-red-600 text-white hover:bg-red-700 mt-2"
+                onClick={() => {
+                  setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '' });
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                  setIsEditing(false);
+                }}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+          <div className="w-80">
+            {/* Photo selection/upload choice */}
+            <div className="mb-0 pt-1">
+              <label className="block font-semibold mb-2">Photo:</label>
+              <div className="flex gap-4 mb-2">
                 <button
                   type="button"
-                  key={filename}
-                  className={`border rounded p-1 flex flex-col items-center hover:border-blue-500 focus:border-blue-600 ${formData.photo === filename ? 'border-2 border-blue-600' : ''}`}
-                  onClick={() => setFormData({ ...formData, photo: filename })}
+                  className={`px-3 py-1 rounded border ${formData.photo === '' ? 'bg-blue-100 border-blue-600 font-bold' : 'bg-gray-100 border-gray-300'}`}
+                  onClick={() => setFormData({ ...formData, photo: '' })}
                 >
-                  <img
-                    src={`/photos/players/${filename}`}
-                    alt={filename}
-                    className="h-16 w-16 object-cover rounded mb-1"
-                  />
-                  <span className="text-xs truncate w-16">{filename}</span>
+                  Upload a photo
                 </button>
-              ))}
+                <button
+                  type="button"
+                  className={`px-3 py-1 rounded border ${formData.photo !== '' ? 'bg-blue-100 border-blue-600 font-bold' : 'bg-gray-100 border-gray-300'}`}
+                  onClick={() => setFormData({ ...formData, photo: photoList[0] || '' })}
+                >
+                  Select a photo from list
+                </button>
+              </div>
+              {/* Upload input only if photo is blank */}
+              {formData.photo === '' && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  className="border border-gray-300 rounded w-full p-2 mb-3"
+                />
+              )}
+              {/* Photo grid only if selecting from list */}
+              {formData.photo !== '' && (
+                <div
+                  className="grid grid-cols-4 gap-3 max-h-56 overflow-y-auto p-1 border rounded bg-gray-50"
+                  style={{ minHeight: '120px' }}
+                >
+                  {photoList.map((filename) => (
+                    <button
+                      type="button"
+                      key={filename}
+                      className={`border rounded p-1 flex flex-col items-center hover:border-blue-500 focus:border-blue-600 ${formData.photo === filename ? 'border-2 border-blue-600' : ''}`}
+                      onClick={() => setFormData({ ...formData, photo: filename })}
+                    >
+                      <img
+                        src={`/photos/players/${filename}`}
+                        alt={filename}
+                        className="h-16 w-16 object-cover rounded mb-1"
+                      />
+                      <span className="text-xs truncate w-16">{filename}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-
-        <button
-          type="submit"
-          className={`w-full rounded py-2 font-semibold transition ${formData.handicap === '' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-          disabled={formData.handicap === ''}
-        >
-          {isEditing ? 'Update Player' : 'Add Player'}
-        </button>
       </form>
 
       {/* Players Table */}
