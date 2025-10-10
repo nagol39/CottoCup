@@ -232,6 +232,7 @@ export default function AdminPage() {
           <option value="Europe">Team Europe</option>
         </select>
 
+
         <select
           name="handedness"
           value={formData.handedness}
@@ -241,6 +242,18 @@ export default function AdminPage() {
           <option value="Right">Right</option>
           <option value="Left">Left</option>
         </select>
+
+        <input
+          type="text"
+          name="handicap"
+          value={formData.handicap}
+          onChange={handleChange}
+          placeholder="Enter handicap here"
+          inputMode="decimal"
+          pattern="[0-9.]*"
+          className="border border-gray-300 rounded w-full p-2 mb-3"
+          style={{ MozAppearance: 'textfield' }}
+        />
 
         {/* Photo selection/upload choice */}
         <div className="mb-3">
@@ -295,20 +308,6 @@ export default function AdminPage() {
           )}
         </div>
 
-
-
-        <input
-          type="text"
-          name="handicap"
-          value={formData.handicap}
-          onChange={handleChange}
-          placeholder="Enter handicap here"
-          inputMode="decimal"
-          pattern="[0-9.]*"
-          className="border border-gray-300 rounded w-full p-2 mb-3"
-          style={{ MozAppearance: 'textfield' }}
-        />
-
         <button
           type="submit"
           className={`w-full rounded py-2 font-semibold transition ${formData.handicap === '' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
@@ -358,11 +357,6 @@ export default function AdminPage() {
                   <td className="border p-2">{player.team}</td>
                   <td className="border p-2">{player.handedness}</td>
                   <td className="border p-2">{player.handicap}</td>
-                  <td className="border p-2">
-                    {player.photo ? (
-                      <img src={`/photos/players/${player.photo}`} alt={player.name} className="h-8 w-8 object-cover rounded-full inline-block mr-2" />
-                    ) : null}
-                  </td>
                   <td className="border p-2 text-center">
                     <button
                       onClick={() => handleEdit(player)}
@@ -381,7 +375,7 @@ export default function AdminPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="text-center py-4 text-gray-500">
+                <td colSpan={4} className="text-center py-4 text-gray-500">
                   No players found.
                 </td>
               </tr>
