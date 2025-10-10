@@ -79,11 +79,14 @@ export default function AdminPage() {
   }, []);
 
   const fetchPhotoList = async () => {
-    // List photos from public/photos folder
-    setPhotoList([
-      'eu1.jpg','eu2.jpg','eu3.jpg','eu4.jpg','eu5.jpg','eu6.jpg',
-      'us1.jpg','us2.jpg','us3.jpg','us4.jpg','us5.jpg','us6.jpg'
-    ]);
+    try {
+      const res = await fetch('/api/photos/players');
+      if (!res.ok) throw new Error('Failed to fetch photo list');
+      const data = await res.json();
+      setPhotoList(data);
+    } catch (err) {
+      setPhotoList([]);
+    }
   };
 
   const fetchPlayers = async () => {
@@ -120,9 +123,19 @@ export default function AdminPage() {
     // If a file is selected, upload it
     if (fileInputRef.current && fileInputRef.current.files && fileInputRef.current.files[0]) {
       const file = fileInputRef.current.files[0];
-      // Upload to /api/upload (not implemented here, but you can add it)
-      // For now, just use the filename
-      photoFilename = file.name;
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      if (uploadRes.ok) {
+        const uploadData = await uploadRes.json();
+        photoFilename = uploadData.filename;
+      } else {
+        alert('Photo upload failed');
+        return;
+      }
     }
 
     const payload = {
@@ -164,7 +177,7 @@ export default function AdminPage() {
             ? 'eu1.jpg'
             : 'us1.jpg',
     });
-    setIsEditing(true);
+  setIsEditing(true)
   };
 
   // ✅ Delete player
@@ -309,6 +322,11 @@ export default function AdminPage() {
                   <td className="border p-2">{player.team}</td>
                   <td className="border p-2">{player.handedness}</td>
                   <td className="border p-2">{player.handicap}</td>
+                  <td className="border p-2">
+                    {player.photo ? (
+                      <img src={`/photos/players/${player.photo}`} alt={player.name} className="h-8 w-8 object-cover rounded-full inline-block mr-2" />
+                    ) : null}
+                  </td>
                   <td className="border p-2 text-center">
                     <button
                       onClick={() => handleEdit(player)}
