@@ -79,7 +79,7 @@ export default function StatisticsPage() {
                 className="flex items-center p-4 bg-red-100 border border-red-400 rounded-xl text-black hover:bg-red-200 transition"
               >
                 <img
-                  src={player.photo}
+                  src={player.photo ? `/photos/players/${player.photo}` : '/trophy.jpg'}
                   alt={player.name}
                   className="w-24 h-24 rounded-full border-2 border-red-600 mr-4"
                 />
@@ -104,7 +104,7 @@ export default function StatisticsPage() {
                 className="flex items-center p-4 bg-blue-100 border border-blue-400 rounded-xl text-black hover:bg-blue-200 transition"
               >
                 <img
-                  src={player.photo}
+                  src={player.photo ? `/photos/players/${player.photo}` : '/trophy.jpg'}
                   alt={player.name}
                   className="w-24 h-24 rounded-full border-2 border-blue-600 mr-4"
                 />

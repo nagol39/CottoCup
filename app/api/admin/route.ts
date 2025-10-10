@@ -36,13 +36,13 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  const { id, name, team, handedness, handicap } = body;
+  const { id, name, team, handedness, handicap, photo } = body;
 
   const dbPath = path.join(process.cwd(), 'data', 'players.db');
   const db = new Database(dbPath);
   db.prepare(
-    'UPDATE players SET name=?, team=?, handedness=?, handicap=? WHERE id=?'
-  ).run(name, team, handedness, handicap, id);
+    'UPDATE players SET name=?, team=?, handedness=?, handicap=?, photo=? WHERE id=?'
+  ).run(name, team, handedness, handicap, photo, id);
   db.close();
 
   return new Response(JSON.stringify({ success: true }), { status: 200 });
