@@ -26,6 +26,12 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
       <p><strong>Team:</strong> {player.team}</p>
       <p><strong>Handedness:</strong> {player.handedness}</p>
       <p><strong>Handicap:</strong> {player.handicap}</p>
+      {player.bio && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">About</h2>
+          <p className="text-gray-700">{player.bio}</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { name, team, handedness, handicap, photo } = body;
+  const { name, team, handedness, handicap, photo, bio } = body;
 
   // Generate slug from name (lowercase, replace spaces with hyphens)
   const slug = name ? name.trim().toLowerCase().replace(/\s+/g, '-') : '';
@@ -27,8 +27,8 @@ export async function POST(req: Request) {
   const dbPath = path.join(process.cwd(), 'data', 'players.db');
   const db = new Database(dbPath);
   db.prepare(
-    'INSERT INTO players (name, slug, photo, team, handedness, handicap) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(name, slug, photoFilename, team, handedness, handicap);
+    'INSERT INTO players (name, slug, photo, team, handedness, handicap, bio) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(name, slug, photoFilename, team, handedness, handicap, bio || '');
   db.close();
 
   return new Response(JSON.stringify({ success: true }), { status: 200 });
@@ -36,13 +36,13 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  const { id, name, team, handedness, handicap, photo } = body;
+  const { id, name, team, handedness, handicap, photo, bio } = body;
 
   const dbPath = path.join(process.cwd(), 'data', 'players.db');
   const db = new Database(dbPath);
   db.prepare(
-    'UPDATE players SET name=?, team=?, handedness=?, handicap=?, photo=? WHERE id=?'
-  ).run(name, team, handedness, handicap, photo, id);
+    'UPDATE players SET name=?, team=?, handedness=?, handicap=?, photo=?, bio=? WHERE id=?'
+  ).run(name, team, handedness, handicap, photo, bio || '', id);
   db.close();
 
   return new Response(JSON.stringify({ success: true }), { status: 200 });

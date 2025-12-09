@@ -9,6 +9,7 @@ interface Player {
   handedness: string;
   handicap: number;
   photo?: string;
+  bio?: string;
 }
 
 export default function AdminPage() {
@@ -20,6 +21,7 @@ export default function AdminPage() {
     handedness: 'Right',
     handicap: '',
     photo: '',
+    bio: '',
   });
   const [photoList, setPhotoList] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -101,7 +103,7 @@ export default function AdminPage() {
   };
 
   // ✅ Update form data
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (name === 'handicap') {
       // Only allow numbers and decimals
@@ -153,7 +155,7 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error('Failed to save player');
 
-      setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '' });
+      setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       setIsEditing(false);
       await fetchPlayers();
@@ -176,6 +178,7 @@ export default function AdminPage() {
           : player.team === 'Europe'
             ? 'eu1.jpg'
             : 'us1.jpg',
+      bio: player.bio || '',
     });
     setIsEditing(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -251,6 +254,13 @@ export default function AdminPage() {
               className="border border-gray-300 rounded w-full p-2 mb-3"
               style={{ MozAppearance: 'textfield' }}
             />
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              placeholder="Player bio (e.g., 'Logan consistently finds the water')"
+              className="border border-gray-300 rounded w-full p-2 mb-3 h-24 resize-none"
+            />
             <button
               type="submit"
               className={`w-full rounded py-2 font-semibold transition ${formData.handicap === '' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
@@ -263,7 +273,7 @@ export default function AdminPage() {
                 type="button"
                 className="w-full rounded py-2 font-semibold bg-red-600 text-white hover:bg-red-700 mt-2"
                 onClick={() => {
-                  setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '' });
+                  setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '' });
                   if (fileInputRef.current) fileInputRef.current.value = '';
                   setIsEditing(false);
                 }}
