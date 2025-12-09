@@ -53,6 +53,15 @@ export default function AdminPage() {
   const [sortBy, setSortBy] = useState<'name'|'team'|'handedness'|'handicap'>('name');
   const [sortOrder, setSortOrder] = useState<'asc'|'desc'>('asc');
   const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
+  
+  // Calculate win percentage whenever matches_won or matches_played changes
+  const calculatedWinPercentage = React.useMemo(() => {
+    const won = parseInt(formData.matches_won) || 0;
+    const played = parseInt(formData.matches_played) || 0;
+    if (played === 0) return '0';
+    return ((won / played) * 100).toFixed(1);
+  }, [formData.matches_won, formData.matches_played]);
+
   // Sort players array based on sortBy and sortOrder
   const sortedPlayers = [...players].sort((a, b) => {
     if (sortBy === 'team') {
@@ -178,7 +187,7 @@ export default function AdminPage() {
       tip_n_rip: formData.tip_n_rip || '0-0-0',
       matches_won: formData.matches_won === '' ? 0 : parseInt(formData.matches_won),
       matches_played: formData.matches_played === '' ? 0 : parseInt(formData.matches_played),
-      win_percentage: formData.win_percentage === '' ? 0 : parseFloat(formData.win_percentage),
+      win_percentage: parseFloat(calculatedWinPercentage),
       handicap_18: formData.handicap_18 === '' ? 0 : parseFloat(formData.handicap_18),
       handicap_9: formData.handicap_9 === '' ? 0 : parseFloat(formData.handicap_9),
     };
@@ -519,10 +528,10 @@ export default function AdminPage() {
                   <input
                     type="text"
                     name="win_percentage"
-                    value={formData.win_percentage}
-                    onChange={handleChange}
-                    placeholder="e.g., 62.5"
-                    className="border border-gray-300 rounded-md w-full p-2"
+                    value={calculatedWinPercentage}
+                    readOnly
+                    disabled
+                    className="border border-gray-300 rounded-md w-full p-2 bg-gray-100 text-gray-600 cursor-not-allowed"
                   />
                 </div>
                 
