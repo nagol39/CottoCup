@@ -14,10 +14,75 @@ export async function generateStaticParams() {
 export default async function PlayerPage({ params }: { params: { slug: string } }) {
   const dbPath = path.join(process.cwd(), 'data', 'players.db');
   const db = new Database(dbPath);
-  const player = db.prepare('SELECT * FROM players WHERE slug = ?').get(params.slug);
+  const player = db.prepare('SELECT * FROM players WHERE slug = ?').get(params.slug) as any;
+
+  if (!player) {
+    db.close();
+    return notFound();
+  }
+
+  // Get all matches this player participated in
+  const matches = db.prepare(`
+    SELECT * FROM matches 
+    WHERE team1_player1_id = ? 
+       OR team1_player2_id = ? 
+       OR team2_player1_id = ? 
+       OR team2_player2_id = ?
+  `).all(player.id, player.id, player.id, player.id) as any[];
+
   db.close();
 
-  if (!player) return notFound();
+  // Calculate statistics from matches
+  let totalPoints = 0;
+  let wins = 0;
+  let losses = 0;
+  let draws = 0;
+  let matchesPlayed = matches.length;
+
+  // Game format records
+  const gameFormatStats: { [key: string]: { w: number, l: number, d: number } } = {
+    singles: { w: 0, l: 0, d: 0 },
+    scramble: { w: 0, l: 0, d: 0 },
+    fourball: { w: 0, l: 0, d: 0 },
+    foursomes: { w: 0, l: 0, d: 0 },
+    tip_n_rip: { w: 0, l: 0, d: 0 }
+  };
+
+  matches.forEach(match => {
+    // Determine if player was on USA (team1) or Europe (team2)
+    const isOnUSA = match.team1_player1_id === player.id || match.team1_player2_id === player.id;
+    const gameType = match.game_type.toLowerCase().replace(/-/g, '_').replace(/ /g, '_');
+
+    if (match.result === 'W') {
+      if (isOnUSA) {
+        // USA won, player on USA = Win
+        wins++;
+        totalPoints += 1;
+        if (gameFormatStats[gameType]) gameFormatStats[gameType].w++;
+      } else {
+        // USA won, player on Europe = Loss
+        losses++;
+        if (gameFormatStats[gameType]) gameFormatStats[gameType].l++;
+      }
+    } else if (match.result === 'L') {
+      if (isOnUSA) {
+        // USA lost, player on USA = Loss
+        losses++;
+        if (gameFormatStats[gameType]) gameFormatStats[gameType].l++;
+      } else {
+        // USA lost, player on Europe = Win
+        wins++;
+        totalPoints += 1;
+        if (gameFormatStats[gameType]) gameFormatStats[gameType].w++;
+      }
+    } else if (match.result === 'D') {
+      draws++;
+      totalPoints += 0.5;
+      if (gameFormatStats[gameType]) gameFormatStats[gameType].d++;
+    }
+  });
+
+  const winPercentage = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0;
 
   return (
     <div className="p-8 bg-white min-h-screen text-black">
@@ -49,11 +114,11 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-600">Total Points</p>
-                  <p className="text-2xl font-bold text-blue-600">{player.total_points || 0}</p>
+                  <p className="text-2xl font-bold text-blue-600">{totalPoints}</p>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-600">Win Percentage</p>
-                  <p className="text-2xl font-bold text-blue-600">{player.win_percentage || 0}%</p>
+                  <p className="text-2xl font-bold text-blue-600">{winPercentage}%</p>
                 </div>
               </div>
 
@@ -61,20 +126,20 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Overall Record</h3>
                   <div className="space-y-2">
-                    <p><strong>Results (W-L-D):</strong> {player.results_wld || '0-0-0'}</p>
-                    <p><strong>Matches Won:</strong> {player.matches_won || 0}</p>
-                    <p><strong>Matches Played:</strong> {player.matches_played || 0}</p>
+                    <p><strong>Results (W-L-D):</strong> {wins}-{losses}-{draws}</p>
+                    <p><strong>Matches Won:</strong> {wins}</p>
+                    <p><strong>Matches Played:</strong> {matchesPlayed}</p>
                   </div>
                 </div>
 
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Game Format Records</h3>
                   <div className="space-y-2">
-                    <p><strong>Singles:</strong> {player.singles || '0-0-0'}</p>
-                    <p><strong>Scramble:</strong> {player.scramble || '0-0-0'}</p>
-                    <p><strong>Four-Ball:</strong> {player.four_ball || '0-0-0'}</p>
-                    <p><strong>Foursomes:</strong> {player.foursomes || '0-0-0'}</p>
-                    <p><strong>Tip N Rip:</strong> {player.tip_n_rip || '0-0-0'}</p>
+                    <p><strong>Singles:</strong> {gameFormatStats.singles.w}-{gameFormatStats.singles.l}-{gameFormatStats.singles.d}</p>
+                    <p><strong>Scramble:</strong> {gameFormatStats.scramble.w}-{gameFormatStats.scramble.l}-{gameFormatStats.scramble.d}</p>
+                    <p><strong>Four-Ball:</strong> {gameFormatStats.fourball.w}-{gameFormatStats.fourball.l}-{gameFormatStats.fourball.d}</p>
+                    <p><strong>Foursomes:</strong> {gameFormatStats.foursomes.w}-{gameFormatStats.foursomes.l}-{gameFormatStats.foursomes.d}</p>
+                    <p><strong>Tip N Rip:</strong> {gameFormatStats.tip_n_rip.w}-{gameFormatStats.tip_n_rip.l}-{gameFormatStats.tip_n_rip.d}</p>
                   </div>
                 </div>
               </div>
