@@ -12,8 +12,6 @@ function getDb() {
       us_score TEXT,
       eu_score TEXT,
       location TEXT,
-      us_players TEXT,
-      eu_players TEXT,
       notes TEXT
     )`
   ).run();
@@ -29,20 +27,20 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { year, us_score, eu_score, location, us_players, eu_players, notes } = body;
+  const { year, us_score, eu_score, location, notes } = body;
   const db = getDb();
-  const stmt = db.prepare('INSERT INTO history (year, us_score, eu_score, location, us_players, eu_players, notes) VALUES (?, ?, ?, ?, ?, ?, ?)');
-  stmt.run(year, us_score || null, eu_score || null, location || null, JSON.stringify(us_players || []), JSON.stringify(eu_players || []), notes || '');
+  const stmt = db.prepare('INSERT INTO history (year, us_score, eu_score, location, notes) VALUES (?, ?, ?, ?, ?)');
+  stmt.run(year, us_score || null, eu_score || null, location || null, notes || '');
   db.close();
   return new Response(JSON.stringify({ success: true }), { status: 200 });
 }
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  const { id, year, us_score, eu_score, location, us_players, eu_players, notes } = body;
+  const { id, year, us_score, eu_score, location, notes } = body;
   const db = getDb();
-  const stmt = db.prepare('UPDATE history SET year=?, us_score=?, eu_score=?, location=?, us_players=?, eu_players=?, notes=? WHERE id=?');
-  stmt.run(year, us_score || null, eu_score || null, location || null, JSON.stringify(us_players || []), JSON.stringify(eu_players || []), notes || '', id);
+  const stmt = db.prepare('UPDATE history SET year=?, us_score=?, eu_score=?, location=?, notes=? WHERE id=?');
+  stmt.run(year, us_score || null, eu_score || null, location || null, notes || '', id);
   db.close();
   return new Response(JSON.stringify({ success: true }), { status: 200 });
 }

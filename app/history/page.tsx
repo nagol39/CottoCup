@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 type YearItem = {
   year: number
@@ -66,7 +67,11 @@ function ExpandedContent({ item }: { item: YearItem }) {
           </div>
 
           <div>
-            <button className="px-4 py-2 rounded-full bg-blue-800 text-white text-sm">Full Results</button>
+            <Link href={`/results?year=${item.year}`}>
+              <button className="px-4 py-2 rounded-full bg-blue-800 text-white text-sm hover:bg-blue-900">
+                Full Results
+              </button>
+            </Link>
           </div>
         </div>
       </div>
