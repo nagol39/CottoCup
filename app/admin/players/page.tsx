@@ -10,16 +10,6 @@ interface Player {
   handicap: number;
   photo?: string;
   bio?: string;
-  total_points?: number;
-  results_wld?: string;
-  singles?: string;
-  scramble?: string;
-  four_ball?: string;
-  foursomes?: string;
-  tip_n_rip?: string;
-  matches_won?: number;
-  matches_played?: number;
-  win_percentage?: number;
   handicap_18?: number;
   handicap_9?: number;
 }
@@ -34,16 +24,6 @@ export default function AdminPage() {
     handicap: '',
     photo: '',
     bio: '',
-    total_points: '',
-    results_wld: '',
-    singles: '',
-    scramble: '',
-    four_ball: '',
-    foursomes: '',
-    tip_n_rip: '',
-    matches_won: '',
-    matches_played: '',
-    win_percentage: '',
     handicap_18: '',
     handicap_9: '',
   });
@@ -53,14 +33,6 @@ export default function AdminPage() {
   const [sortBy, setSortBy] = useState<'name'|'team'|'handedness'|'handicap'>('name');
   const [sortOrder, setSortOrder] = useState<'asc'|'desc'>('asc');
   const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
-  
-  // Calculate win percentage whenever matches_won or matches_played changes
-  const calculatedWinPercentage = React.useMemo(() => {
-    const won = parseInt(formData.matches_won) || 0;
-    const played = parseInt(formData.matches_played) || 0;
-    if (played === 0) return '0';
-    return ((won / played) * 100).toFixed(1);
-  }, [formData.matches_won, formData.matches_played]);
 
   // Sort players array based on sortBy and sortOrder
   const sortedPlayers = [...players].sort((a, b) => {
@@ -127,7 +99,7 @@ export default function AdminPage() {
 
   const fetchPlayers = async () => {
     try {
-  const res = await fetch('/api/admin');
+      const res = await fetch('/api/admin');
       if (!res.ok) throw new Error('Failed to fetch players');
       const data = await res.json();
       setPlayers(data);
@@ -178,16 +150,6 @@ export default function AdminPage() {
       ...formData,
       handicap: formData.handicap === '' ? 0 : parseFloat(formData.handicap),
       photo: photoFilename,
-      total_points: formData.total_points === '' ? 0 : parseFloat(formData.total_points),
-      results_wld: formData.results_wld || '0-0-0',
-      singles: formData.singles || '0-0-0',
-      scramble: formData.scramble || '0-0-0',
-      four_ball: formData.four_ball || '0-0-0',
-      foursomes: formData.foursomes || '0-0-0',
-      tip_n_rip: formData.tip_n_rip || '0-0-0',
-      matches_won: formData.matches_won === '' ? 0 : parseInt(formData.matches_won),
-      matches_played: formData.matches_played === '' ? 0 : parseInt(formData.matches_played),
-      win_percentage: parseFloat(calculatedWinPercentage),
       handicap_18: formData.handicap_18 === '' ? 0 : parseFloat(formData.handicap_18),
       handicap_9: formData.handicap_9 === '' ? 0 : parseFloat(formData.handicap_9),
     };
@@ -201,7 +163,7 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error('Failed to save player');
 
-      setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', total_points: '', results_wld: '', singles: '', scramble: '', four_ball: '', foursomes: '', tip_n_rip: '', matches_won: '', matches_played: '', win_percentage: '', handicap_18: '', handicap_9: '' });
+      setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       setIsEditing(false);
       await fetchPlayers();
@@ -225,16 +187,6 @@ export default function AdminPage() {
             ? 'eu1.jpg'
             : 'us1.jpg',
       bio: player.bio || '',
-      total_points: player.total_points?.toString() ?? '',
-      results_wld: player.results_wld || '',
-      singles: player.singles || '',
-      scramble: player.scramble || '',
-      four_ball: player.four_ball || '',
-      foursomes: player.foursomes || '',
-      tip_n_rip: player.tip_n_rip || '',
-      matches_won: player.matches_won?.toString() ?? '',
-      matches_played: player.matches_played?.toString() ?? '',
-      win_percentage: player.win_percentage?.toString() ?? '',
       handicap_18: player.handicap_18?.toString() ?? '',
       handicap_9: player.handicap_9?.toString() ?? '',
     });
@@ -331,7 +283,7 @@ export default function AdminPage() {
                 type="button"
                 className="w-full rounded-md py-2 font-semibold bg-red-600 text-white hover:bg-red-700 mt-2"
                 onClick={() => {
-                  setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', total_points: '', results_wld: '', singles: '', scramble: '', four_ball: '', foursomes: '', tip_n_rip: '', matches_won: '', matches_played: '', win_percentage: '', handicap_18: '', handicap_9: '' });
+                  setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
                   if (fileInputRef.current) fileInputRef.current.value = '';
                   setIsEditing(false);
                 }}
@@ -405,160 +357,32 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Right Column - Statistics */}
+          {/* Right Column - Additional Handicaps */}
           <div className="flex-1">
-            <h3 className="text-lg font-bold mb-4">Statistics</h3>
+            <h3 className="text-lg font-bold mb-4">Additional Handicaps</h3>
             
-            <div className="grid grid-cols-2 gap-x-4">
-              {/* Left Column */}
-              <div>
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Total Points</label>
-                  <input
-                    type="text"
-                    name="total_points"
-                    value={formData.total_points}
-                    onChange={handleChange}
-                    placeholder="e.g., 12.5"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Results (W-L-D)</label>
-                  <input
-                    type="text"
-                    name="results_wld"
-                    value={formData.results_wld}
-                    onChange={handleChange}
-                    placeholder="e.g., 5-2-1"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Singles</label>
-                  <input
-                    type="text"
-                    name="singles"
-                    value={formData.singles}
-                    onChange={handleChange}
-                    placeholder="e.g., 2-3-0"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Scramble</label>
-                  <input
-                    type="text"
-                    name="scramble"
-                    value={formData.scramble}
-                    onChange={handleChange}
-                    placeholder="e.g., 1-0-1"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Four-Ball</label>
-                  <input
-                    type="text"
-                    name="four_ball"
-                    value={formData.four_ball}
-                    onChange={handleChange}
-                    placeholder="e.g., 2-0-0"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Foursomes</label>
-                  <input
-                    type="text"
-                    name="foursomes"
-                    value={formData.foursomes}
-                    onChange={handleChange}
-                    placeholder="e.g., 1-1-0"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-              </div>
-              
-              {/* Right Column */}
-              <div>
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Tip N Rip</label>
-                  <input
-                    type="text"
-                    name="tip_n_rip"
-                    value={formData.tip_n_rip}
-                    onChange={handleChange}
-                    placeholder="e.g., 0-0-0"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Matches Won</label>
-                  <input
-                    type="text"
-                    name="matches_won"
-                    value={formData.matches_won}
-                    onChange={handleChange}
-                    placeholder="e.g., 1"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Matches Played</label>
-                  <input
-                    type="text"
-                    name="matches_played"
-                    value={formData.matches_played}
-                    onChange={handleChange}
-                    placeholder="e.g., 8"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">Win Percentage</label>
-                  <input
-                    type="text"
-                    name="win_percentage"
-                    value={calculatedWinPercentage}
-                    readOnly
-                    disabled
-                    className="border border-gray-300 rounded-md w-full p-2 bg-gray-100 text-gray-600 cursor-not-allowed"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">18 Hole Handicap</label>
-                  <input
-                    type="text"
-                    name="handicap_18"
-                    value={formData.handicap_18}
-                    onChange={handleChange}
-                    placeholder="e.g., 15.3"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold mb-1">9 Hole Handicap</label>
-                  <input
-                    type="text"
-                    name="handicap_9"
-                    value={formData.handicap_9}
-                    onChange={handleChange}
-                    placeholder="e.g., 7.7"
-                    className="border border-gray-300 rounded-md w-full p-2"
-                  />
-                </div>
-              </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2">18 Hole Handicap</label>
+              <input
+                type="text"
+                name="handicap_18"
+                value={formData.handicap_18}
+                onChange={handleChange}
+                placeholder="e.g., 15.3"
+                className="border border-gray-300 rounded-md w-full p-2"
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2">9 Hole Handicap</label>
+              <input
+                type="text"
+                name="handicap_9"
+                value={formData.handicap_9}
+                onChange={handleChange}
+                placeholder="e.g., 7.7"
+                className="border border-gray-300 rounded-md w-full p-2"
+              />
             </div>
           </div>
         </div>
@@ -566,11 +390,12 @@ export default function AdminPage() {
 
       {/* Photo Library Modal */}
       {showPhotoLibrary && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowPhotoLibrary(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Choose Photo from Library</h3>
+              <h3 className="text-xl font-bold">Choose Photo</h3>
               <button
+                type="button"
                 onClick={() => setShowPhotoLibrary(false)}
                 className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
               >
@@ -652,7 +477,7 @@ export default function AdminPage() {
                         </button>
                         <button
                           onClick={() => {
-                            setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', total_points: '', results_wld: '', singles: '', scramble: '', four_ball: '', foursomes: '', tip_n_rip: '', matches_won: '', matches_played: '', win_percentage: '', handicap_18: '', handicap_9: '' });
+                            setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
                             if (fileInputRef.current) fileInputRef.current.value = '';
                             setIsEditing(false);
                           }}
