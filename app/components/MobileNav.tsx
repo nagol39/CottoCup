@@ -31,9 +31,9 @@ export default function MobileNav() {
             <Link href="/game-format" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Game Format/Rules</Link>
             <Link href="/schedule" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Schedule</Link>
             <Link href="/news" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">News</Link>
+            <Link href="/all-players" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Players</Link>
           </div>
         </div>
-  <Link href="/statistics" className="nav-link px-6 py-3 text-white font-semibold transition bg-transparent hover:text-gray-900 rounded-none">Statistics</Link>
   <Link href="/history" className="nav-link px-6 py-3 text-white font-semibold transition bg-transparent hover:text-gray-900 rounded-none">History</Link>
   <Link href="/photos" className="nav-link px-6 py-3 text-white font-semibold transition bg-transparent hover:text-gray-900 rounded-none">Photos</Link>
   <Link href="/shop" className="nav-link px-6 py-3 text-white font-semibold transition bg-transparent hover:text-gray-900 rounded-none">Shop</Link>
@@ -55,7 +55,6 @@ export default function MobileNav() {
               <Link href="/game-format" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>Game Format/Rules</Link>
               <Link href="/schedule" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>Schedule</Link>
               <Link href="/news" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>News</Link>
-              <Link href="/statistics" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>Statistics</Link>
               <Link href="/history" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>History</Link>
               <Link href="/photos" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>Photos</Link>
               <Link href="/shop" className="px-6 py-4 text-white hover:bg-blue-800 transition" onClick={() => setIsOpen(false)}>Shop</Link>

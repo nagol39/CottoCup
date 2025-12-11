@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function StatisticsPage() {
+export default function AllPlayersPage() {
   const [teamUSA, setTeamUSA] = useState([]);
   const [teamEurope, setTeamEurope] = useState([]);
   const [sortBy, setSortBy] = useState<'name' | 'handicap' | 'left' | 'right'>('name');
@@ -37,19 +37,7 @@ export default function StatisticsPage() {
 
   return (
     <div className="p-8 bg-white text-black min-h-screen">
-      <h1 className="text-4xl font-extrabold mb-6 text-center">Ryder Cup Statistics</h1>
-
-      {/* Overall wins */}
-      <div className="flex justify-around mb-10">
-        <div className="text-center border-4 border-red-600 rounded-xl p-4 w-40 bg-red-50">
-          <h2 className="text-2xl font-bold text-red-600">Team USA</h2>
-          <p className="text-xl font-semibold text-black">6 Wins</p>
-        </div>
-        <div className="text-center border-4 border-blue-600 rounded-xl p-4 w-40 bg-blue-50">
-          <h2 className="text-2xl font-bold text-blue-600">Team Europe</h2>
-          <p className="text-xl font-semibold text-black">0 Wins</p>
-        </div>
-      </div>
+      <h1 className="text-4xl font-extrabold mb-6 text-center">Players</h1>
 
       {/* Sorting dropdown */}
       <div className="flex justify-center mb-6">
