@@ -10,7 +10,7 @@ export default function AdminIndex() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link href="/admin/players" className="block p-6 border rounded-lg hover:shadow-md text-center">
             <div className="text-xl font-semibold">Players</div>
-            <div className="text-sm text-gray-500 mt-2">Add, edit, and remove players.</div>
+            <div className="text-sm text-gray-500 mt-2">Add, edit, and remove players. Manage team history.</div>
           </Link>
 
           <Link href="/admin/history" className="block p-6 border rounded-lg hover:shadow-md text-center">

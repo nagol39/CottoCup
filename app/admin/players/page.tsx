@@ -16,14 +16,22 @@ interface Player {
   handicap_9?: number;
 }
 
+interface TeamHistory {
+  id: number;
+  player_id: number;
+  year: number;
+  team: string;
+  player_name: string;
+}
+
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<'players' | 'team-history'>('players');
   const [players, setPlayers] = useState<Player[]>([]);
   const [formData, setFormData] = useState({
     id: 0,
     first_name: '',
     last_name: '',
     name: '',
-    team: 'USA',
     handedness: 'Right',
     handicap: '',
     photo: '',
@@ -37,6 +45,16 @@ export default function AdminPage() {
   const [sortBy, setSortBy] = useState<'name'|'team'|'handedness'|'handicap'>('name');
   const [sortOrder, setSortOrder] = useState<'asc'|'desc'>('asc');
   const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
+
+  // Team History state
+  const [teamHistory, setTeamHistory] = useState<TeamHistory[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
+  const [teamHistoryForm, setTeamHistoryForm] = useState({
+    player_id: 0,
+    year: new Date().getFullYear(),
+    team: 'USA',
+  });
+  const [editingTeamHistoryId, setEditingTeamHistoryId] = useState<number | null>(null);
 
   // Sort players array based on sortBy and sortOrder
   const sortedPlayers = [...players].sort((a, b) => {
@@ -88,7 +106,14 @@ export default function AdminPage() {
   useEffect(() => {
     fetchPlayers();
     fetchPhotoList();
+    fetchTeamHistory();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'team-history') {
+      fetchTeamHistory();
+    }
+  }, [selectedPlayer, activeTab]);
 
   const fetchPhotoList = async () => {
     try {
@@ -167,7 +192,7 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error('Failed to save player');
 
-      setFormData({ id: 0, first_name: '', last_name: '', name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
+      setFormData({ id: 0, first_name: '', last_name: '', name: '', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       setIsEditing(false);
       await fetchPlayers();
@@ -183,15 +208,9 @@ export default function AdminPage() {
       first_name: player.first_name || '',
       last_name: player.last_name || '',
       name: player.name,
-      team: player.team,
       handedness: player.handedness,
       handicap: player.handicap?.toString() ?? '',
-      photo:
-        player.photo && player.photo !== ''
-          ? player.photo
-          : player.team === 'Europe'
-            ? 'eu1.jpg'
-            : 'us1.jpg',
+      photo: player.photo || 'us1.jpg',
       bio: player.bio || '',
       handicap_18: player.handicap_18?.toString() ?? '',
       handicap_9: player.handicap_9?.toString() ?? '',
@@ -218,10 +237,98 @@ export default function AdminPage() {
     }
   };
 
+  // Team History functions
+  const fetchTeamHistory = async () => {
+    const url = selectedPlayer 
+      ? `/api/team-history?player_id=${selectedPlayer}`
+      : '/api/team-history';
+    const res = await fetch(url);
+    const data = await res.json();
+    setTeamHistory(data);
+  };
+
+  const handleTeamHistorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const method = editingTeamHistoryId ? 'PUT' : 'POST';
+    const payload = editingTeamHistoryId 
+      ? { ...teamHistoryForm, id: editingTeamHistoryId }
+      : teamHistoryForm;
+
+    await fetch('/api/team-history', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    setTeamHistoryForm({ player_id: 0, year: new Date().getFullYear(), team: 'USA' });
+    setEditingTeamHistoryId(null);
+    fetchTeamHistory();
+  };
+
+  const handleTeamHistoryEdit = (th: TeamHistory) => {
+    setTeamHistoryForm({
+      player_id: th.player_id,
+      year: th.year,
+      team: th.team,
+    });
+    setEditingTeamHistoryId(th.id);
+  };
+
+  const handleTeamHistoryDelete = async (id: number) => {
+    if (!confirm('Delete this team assignment?')) return;
+    
+    await fetch('/api/team-history', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    
+    fetchTeamHistory();
+  };
+
+  const filteredHistory = teamHistory.filter(th => 
+    !selectedPlayer || th.player_id === selectedPlayer
+  );
+
+  const groupedHistory = filteredHistory.reduce((acc, th) => {
+    if (!acc[th.player_name]) {
+      acc[th.player_name] = [];
+    }
+    acc[th.player_name].push(th);
+    return acc;
+  }, {} as Record<string, TeamHistory[]>);
+
   return (
     <div className="p-8 bg-white min-h-screen text-black">
       <h1 className="text-4xl font-extrabold mb-6 text-center">Admin - Manage Players</h1>
 
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6 border-b border-gray-300">
+        <button
+          onClick={() => setActiveTab('players')}
+          className={`px-6 py-3 font-semibold transition-colors ${
+            activeTab === 'players'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Players
+        </button>
+        <button
+          onClick={() => setActiveTab('team-history')}
+          className={`px-6 py-3 font-semibold transition-colors ${
+            activeTab === 'team-history'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Team History
+        </button>
+      </div>
+
+      {activeTab === 'players' && (
+        <>
       {/* Player Form */}
       <form
         onSubmit={handleSubmit}
@@ -289,7 +396,7 @@ export default function AdminPage() {
                 type="button"
                 className="w-full rounded-md py-2 font-semibold bg-red-600 text-white hover:bg-red-700 mt-2"
                 onClick={() => {
-                  setFormData({ id: 0, first_name: '', last_name: '', name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
+                  setFormData({ id: 0, first_name: '', last_name: '', name: '', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
                   if (fileInputRef.current) fileInputRef.current.value = '';
                   setIsEditing(false);
                 }}
@@ -324,18 +431,6 @@ export default function AdminPage() {
                 className="border border-gray-300 rounded-md w-full p-2"
                 required
               />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Team</label>
-              <select
-                name="team"
-                value={formData.team}
-                onChange={handleChange}
-                className="border border-gray-300 rounded-md w-full p-2"
-              >
-                <option value="USA">Team USA</option>
-                <option value="Europe">Team Europe</option>
-              </select>
             </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2">Handedness</label>
@@ -535,6 +630,211 @@ export default function AdminPage() {
           </tbody>
         </table>
       </div>
+        </>
+      )}
+
+      {activeTab === 'team-history' && (
+        <>
+          <p className="mb-6 text-gray-600">
+            Manage which team each player was on for specific years. This is used for players who have switched teams.
+          </p>
+
+          {/* Team History Form */}
+          <form onSubmit={handleTeamHistorySubmit} className="mb-8 p-6 border border-gray-300 rounded-lg bg-gray-50">
+            <h2 className="text-2xl font-bold mb-4">
+              {editingTeamHistoryId ? 'Edit Team Assignment' : 'Add Team Assignment'}
+            </h2>
+            
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block font-semibold mb-2">Player</label>
+                <select
+                  value={teamHistoryForm.player_id}
+                  onChange={(e) => {
+                    const playerId = Number(e.target.value);
+                    setTeamHistoryForm({ ...teamHistoryForm, player_id: playerId });
+                    // Automatically show this player's history
+                    if (playerId > 0) {
+                      setSelectedPlayer(playerId);
+                    } else {
+                      setSelectedPlayer(null);
+                    }
+                  }}
+                  className="border p-2 rounded w-full"
+                  required
+                >
+                  <option value={0}>Select player...</option>
+                  {players.sort((a, b) => {
+                    const aName = a.first_name || a.name;
+                    const bName = b.first_name || b.name;
+                    return aName.localeCompare(bName);
+                  }).map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold mb-2">Year</label>
+                <input
+                  type="number"
+                  value={teamHistoryForm.year}
+                  onChange={(e) => setTeamHistoryForm({ ...teamHistoryForm, year: Number(e.target.value) })}
+                  className="border p-2 rounded w-full"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold mb-2">Team</label>
+                <select
+                  value={teamHistoryForm.team}
+                  onChange={(e) => setTeamHistoryForm({ ...teamHistoryForm, team: e.target.value })}
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="USA">Team USA</option>
+                  <option value="Europe">Team Europe</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+              >
+                {editingTeamHistoryId ? 'Update' : 'Add'}
+              </button>
+              
+              {editingTeamHistoryId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTeamHistoryForm({ player_id: 0, year: new Date().getFullYear(), team: 'USA' });
+                    setEditingTeamHistoryId(null);
+                  }}
+                  className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+
+          {/* Selected Player's Team History - shown automatically when player selected */}
+          {teamHistoryForm.player_id > 0 && (
+            <div className="mb-6 p-4 border border-blue-300 rounded-lg bg-blue-50">
+              <h3 className="text-lg font-bold mb-3">
+                {players.find(p => p.id === teamHistoryForm.player_id)?.name}'s Team History
+              </h3>
+              {filteredHistory.filter(th => th.player_id === teamHistoryForm.player_id).length > 0 ? (
+                <div className="space-y-2">
+                  {filteredHistory
+                    .filter(th => th.player_id === teamHistoryForm.player_id)
+                    .sort((a, b) => b.year - a.year)
+                    .map(th => (
+                      <div key={th.id} className="flex items-center justify-between bg-white p-3 rounded">
+                        <div>
+                          <span className="font-semibold">{th.year}:</span>
+                          <span className={`ml-2 px-3 py-1 rounded text-sm ${
+                            th.team === 'USA' 
+                              ? 'bg-red-100 text-red-800' 
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            Team {th.team}
+                          </span>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleTeamHistoryEdit(th)}
+                            className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleTeamHistoryDelete(th.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-gray-600 italic">No team history yet. Add their first team assignment above.</p>
+              )}
+            </div>
+          )}
+
+          {/* Filter */}
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Filter All Players:</label>
+            <select
+              value={selectedPlayer || ''}
+              onChange={(e) => setSelectedPlayer(e.target.value ? Number(e.target.value) : null)}
+              className="border p-2 rounded w-64"
+            >
+              <option value="">All Players</option>
+              {players.sort((a, b) => {
+                const aName = a.first_name || a.name;
+                const bName = b.first_name || b.name;
+                return aName.localeCompare(bName);
+              }).map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Team History List */}
+          <div className="space-y-6">
+            {Object.entries(groupedHistory).map(([playerName, histories]) => (
+              <div key={playerName} className="border border-gray-300 rounded-lg p-4">
+                <h3 className="text-xl font-bold mb-3">{playerName}</h3>
+                
+                <div className="space-y-2">
+                  {histories
+                    .sort((a, b) => b.year - a.year)
+                    .map(th => (
+                      <div key={th.id} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                        <div>
+                          <span className="font-semibold">{th.year}:</span>
+                          <span className={`ml-2 px-3 py-1 rounded text-sm ${
+                            th.team === 'USA' 
+                              ? 'bg-red-100 text-red-800' 
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            Team {th.team}
+                          </span>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleTeamHistoryEdit(th)}
+                            className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleTeamHistoryDelete(th.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
+            
+            {Object.keys(groupedHistory).length === 0 && (
+              <p className="text-gray-500 text-center py-8">No team history records found.</p>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

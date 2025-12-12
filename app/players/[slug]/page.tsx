@@ -22,6 +22,14 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
     return notFound();
   }
 
+  // Get team history for this player
+  const teamHistory = db.prepare(`
+    SELECT year, team 
+    FROM player_team_history 
+    WHERE player_id = ?
+    ORDER BY year DESC
+  `).all(player.id) as any[];
+
   // Get all matches this player participated in
   const matches = db.prepare(`
     SELECT 
@@ -110,6 +118,21 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
             <h1 className="text-3xl font-bold mb-4">{player.name}</h1>
             <div className="space-y-2">
               <p><strong>Team:</strong> {player.team}</p>
+              
+              {/* Team History - Show if player has been on different teams */}
+              {teamHistory.length > 0 && new Set(teamHistory.map(t => t.team)).size > 1 && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="font-semibold text-sm mb-2">Team History:</p>
+                  <div className="space-y-1 text-sm">
+                    {teamHistory.map((th, idx) => (
+                      <p key={idx}>
+                        {th.year}: Team {th.team}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <p><strong>Handedness:</strong> {player.handedness}</p>
               <p><strong>Handicap:</strong> {player.handicap}</p>
               {player.handicap_18 > 0 && <p><strong>18 Hole Handicap:</strong> {player.handicap_18}</p>}
