@@ -17,6 +17,11 @@ export default function AdminIndex() {
             <div className="text-xl font-semibold">History</div>
             <div className="text-sm text-gray-500 mt-2">Manage year results and team selection.</div>
           </Link>
+
+          <Link href="/admin/game-format" className="block p-6 border rounded-lg hover:shadow-md text-center">
+            <div className="text-xl font-semibold">Game Format & Rules</div>
+            <div className="text-sm text-gray-500 mt-2">Manage game formats and rules sections.</div>
+          </Link>
         </div>
       </div>
     </main>
