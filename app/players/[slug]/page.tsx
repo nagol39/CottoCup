@@ -104,6 +104,9 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
 
   const winPercentage = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0;
 
+  // Get current team from most recent year in team history
+  const currentTeam = teamHistory.length > 0 ? teamHistory[0].team : 'Unknown';
+
   return (
     <div className="p-8 bg-white min-h-screen text-black">
       <div className="max-w-5xl mx-auto">
@@ -117,7 +120,7 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
             />
             <h1 className="text-3xl font-bold mb-4">{player.name}</h1>
             <div className="space-y-2">
-              <p><strong>Team:</strong> {player.team}</p>
+              <p><strong>Team:</strong> {currentTeam}</p>
               
               {/* Team History - Show if player has been on different teams */}
               {teamHistory.length > 0 && new Set(teamHistory.map(t => t.team)).size > 1 && (
