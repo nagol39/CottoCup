@@ -31,7 +31,7 @@ export default function MobileNav() {
             <Link href="/game-format" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Game Format/Rules</Link>
             <Link href="/schedule" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Schedule</Link>
             <Link href="/news" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">News</Link>
-            <Link href="/all-players" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Players</Link>
+            <Link href="/players" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Players</Link>
           </div>
         </div>
   <Link href="/history" className="nav-link px-6 py-3 text-white font-semibold transition bg-transparent hover:text-gray-900 rounded-none">History</Link>
