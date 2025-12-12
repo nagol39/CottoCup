@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import path from 'path';
 import Database from 'better-sqlite3';
 import React from 'react';
+import MatchHistory from '../../components/MatchHistory';
 
 export async function generateStaticParams() {
   const dbPath = path.join(process.cwd(), 'data', 'players.db');
@@ -23,11 +24,22 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
 
   // Get all matches this player participated in
   const matches = db.prepare(`
-    SELECT * FROM matches 
+    SELECT 
+      m.*,
+      p1.name as team1_player1_name,
+      p2.name as team1_player2_name,
+      p3.name as team2_player1_name,
+      p4.name as team2_player2_name
+    FROM matches m
+    LEFT JOIN players p1 ON m.team1_player1_id = p1.id
+    LEFT JOIN players p2 ON m.team1_player2_id = p2.id
+    LEFT JOIN players p3 ON m.team2_player1_id = p3.id
+    LEFT JOIN players p4 ON m.team2_player2_id = p4.id
     WHERE team1_player1_id = ? 
        OR team1_player2_id = ? 
        OR team2_player1_id = ? 
        OR team2_player2_id = ?
+    ORDER BY m.year DESC, m.match_number, m.game_type
   `).all(player.id, player.id, player.id, player.id) as any[];
 
   db.close();
@@ -154,6 +166,9 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
             )}
           </div>
         </div>
+
+        {/* Match History Section */}
+        <MatchHistory matches={matches} playerId={player.id} />
       </div>
     </div>
   );
