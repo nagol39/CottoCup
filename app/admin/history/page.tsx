@@ -192,9 +192,16 @@ export default function AdminHistory() {
   async function handleMatchSubmit(e: React.FormEvent) {
     e.preventDefault()
     
-    if (!matchForm.team1_player1_id || !matchForm.team1_player2_id || 
-        !matchForm.team2_player1_id || !matchForm.team2_player2_id) {
-      alert('Please select all players')
+    // Validate Player 1 for both teams is always required
+    if (!matchForm.team1_player1_id || !matchForm.team2_player1_id) {
+      alert('Please select Player 1 for both teams')
+      return
+    }
+    
+    // For non-singles matches, Player 2 is also required
+    if (matchForm.game_type !== 'singles' && 
+        (!matchForm.team1_player2_id || !matchForm.team2_player2_id)) {
+      alert('Please select Player 2 for both teams')
       return
     }
 
@@ -406,19 +413,21 @@ export default function AdminHistory() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Player 2</label>
-                  <select 
-                    value={matchForm.team1_player2_id || ''} 
-                    onChange={(e) => handleMatchFormChange('team1_player2_id', Number(e.target.value))}
-                    className="border p-2 rounded w-full"
-                  >
-                    <option value="">Select player...</option>
-                    {usaPlayers.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                </div>
+                {matchForm.game_type !== 'singles' && (
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">Player 2</label>
+                    <select 
+                      value={matchForm.team1_player2_id || ''} 
+                      onChange={(e) => handleMatchFormChange('team1_player2_id', Number(e.target.value))}
+                      className="border p-2 rounded w-full"
+                    >
+                      <option value="">Select player...</option>
+                      {usaPlayers.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -439,19 +448,21 @@ export default function AdminHistory() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Player 2</label>
-                  <select 
-                    value={matchForm.team2_player2_id || ''} 
-                    onChange={(e) => handleMatchFormChange('team2_player2_id', Number(e.target.value))}
-                    className="border p-2 rounded w-full"
-                  >
-                    <option value="">Select player...</option>
-                    {europePlayers.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                </div>
+                {matchForm.game_type !== 'singles' && (
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">Player 2</label>
+                    <select 
+                      value={matchForm.team2_player2_id || ''} 
+                      onChange={(e) => handleMatchFormChange('team2_player2_id', Number(e.target.value))}
+                      className="border p-2 rounded w-full"
+                    >
+                      <option value="">Select player...</option>
+                      {europePlayers.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
           </div>
