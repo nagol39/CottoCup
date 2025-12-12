@@ -5,6 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 interface Player {
   id: number;
   name: string;
+  first_name: string;
+  last_name: string;
   team: string;
   handedness: string;
   handicap: number;
@@ -18,6 +20,8 @@ export default function AdminPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [formData, setFormData] = useState({
     id: 0,
+    first_name: '',
+    last_name: '',
     name: '',
     team: 'USA',
     handedness: 'Right',
@@ -163,7 +167,7 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error('Failed to save player');
 
-      setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
+      setFormData({ id: 0, first_name: '', last_name: '', name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       setIsEditing(false);
       await fetchPlayers();
@@ -176,6 +180,8 @@ export default function AdminPage() {
   const handleEdit = (player: Player) => {
     setFormData({
       id: player.id,
+      first_name: player.first_name || '',
+      last_name: player.last_name || '',
       name: player.name,
       team: player.team,
       handedness: player.handedness,
@@ -283,7 +289,7 @@ export default function AdminPage() {
                 type="button"
                 className="w-full rounded-md py-2 font-semibold bg-red-600 text-white hover:bg-red-700 mt-2"
                 onClick={() => {
-                  setFormData({ id: 0, name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
+                  setFormData({ id: 0, first_name: '', last_name: '', name: '', team: 'USA', handedness: 'Right', handicap: '', photo: '', bio: '', handicap_18: '', handicap_9: '' });
                   if (fileInputRef.current) fileInputRef.current.value = '';
                   setIsEditing(false);
                 }}
@@ -296,13 +302,25 @@ export default function AdminPage() {
           {/* Middle Column - Basic Info */}
           <div className="flex-1">
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Player Name</label>
+              <label className="block text-sm font-semibold mb-2">First Name</label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="first_name"
+                value={formData.first_name}
                 onChange={handleChange}
-                placeholder="Player Name"
+                placeholder="First Name"
+                className="border border-gray-300 rounded-md w-full p-2"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2">Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleChange}
+                placeholder="Last Name"
                 className="border border-gray-300 rounded-md w-full p-2"
                 required
               />

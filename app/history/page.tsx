@@ -17,6 +17,7 @@ type Player = {
   name: string
   team: string
   photo?: string
+  slug: string
 }
 
 type Match = {
@@ -47,16 +48,18 @@ function TeamList({ side, players }: { side: 'US' | 'EU', players: Player[] }) {
       <h4 className="text-sm font-semibold text-gray-700">{side === 'US' ? '🇺🇸 USA' : '🇪🇺 Europe'} Team</h4>
       <div className="grid grid-cols-2 gap-3">
         {players.map((p) => (
-          <div key={p.id} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600 overflow-hidden flex-shrink-0">
-              {p.photo ? (
-                <img src={`/photos/players/${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-base">{p.name.charAt(0).toUpperCase()}</span>
-              )}
+          <Link key={p.id} href={`/players/${p.slug}`}>
+            <div className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600 overflow-hidden flex-shrink-0">
+                {p.photo ? (
+                  <img src={`/photos/players/${p.photo}`} alt={p.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-base">{p.name.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="text-xs text-gray-700 hover:text-blue-600 font-medium">{p.name}</div>
             </div>
-            <div className="text-xs text-gray-700">{p.name}</div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

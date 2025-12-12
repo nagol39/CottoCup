@@ -21,14 +21,27 @@ export default function AllPlayersPage() {
     return [...players].sort((a, b) => {
       if (sort === 'handicap') return a.handicap - b.handicap;
       if (sort === 'left') {
-        if (a.handedness === b.handedness) return a.name.localeCompare(b.name);
+        if (a.handedness === b.handedness) {
+          // Sort by last name if available, otherwise by full name
+          const aName = a.last_name || a.name;
+          const bName = b.last_name || b.name;
+          return aName.localeCompare(bName);
+        }
         return a.handedness === 'Left' ? -1 : 1;
       }
       if (sort === 'right') {
-        if (a.handedness === b.handedness) return a.name.localeCompare(b.name);
+        if (a.handedness === b.handedness) {
+          // Sort by last name if available, otherwise by full name
+          const aName = a.last_name || a.name;
+          const bName = b.last_name || b.name;
+          return aName.localeCompare(bName);
+        }
         return a.handedness === 'Right' ? -1 : 1;
       }
-      return a.name.localeCompare(b.name);
+      // Default sort by last name if available, otherwise by full name
+      const aName = a.last_name || a.name;
+      const bName = b.last_name || b.name;
+      return aName.localeCompare(bName);
     });
   };
 
