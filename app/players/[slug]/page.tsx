@@ -50,6 +50,16 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
     ORDER BY m.year DESC, m.match_number, m.game_type
   `).all(player.id, player.id, player.id, player.id) as any[];
 
+  // Get tournament history data (location and scores)
+  const historyDbPath = path.join(process.cwd(), 'data', 'history.db');
+  const historyDb = new Database(historyDbPath);
+  const tournamentHistory = historyDb.prepare(`
+    SELECT year, location, us_score, eu_score
+    FROM history
+    ORDER BY year DESC
+  `).all() as any[];
+  historyDb.close();
+
   db.close();
 
   // Calculate statistics from matches
@@ -194,7 +204,7 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
         </div>
 
         {/* Match History Section */}
-        <MatchHistory matches={matches} playerId={player.id} />
+        <MatchHistory matches={matches} playerId={player.id} tournamentHistory={tournamentHistory} />
       </div>
     </div>
   );

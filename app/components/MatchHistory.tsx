@@ -18,12 +18,20 @@ interface Match {
   result: string;
 }
 
+interface TournamentHistory {
+  year: number;
+  location: string;
+  us_score: string;
+  eu_score: string;
+}
+
 interface MatchHistoryProps {
   matches: Match[];
   playerId: number;
+  tournamentHistory: TournamentHistory[];
 }
 
-export default function MatchHistory({ matches, playerId }: MatchHistoryProps) {
+export default function MatchHistory({ matches, playerId, tournamentHistory }: MatchHistoryProps) {
   const [selectedYear, setSelectedYear] = useState<string>('all');
 
   // Get unique years from matches
@@ -135,6 +143,13 @@ export default function MatchHistory({ matches, playerId }: MatchHistoryProps) {
             const partnerName = getPartnerName(match);
             const opponentNames = getOpponentNames(match);
             
+            // Get tournament info for this match
+            const tournament = tournamentHistory.find(t => t.year === match.year);
+            const usScore = tournament ? parseFloat(tournament.us_score) : 0;
+            const euScore = tournament ? parseFloat(tournament.eu_score) : 0;
+            const usWon = usScore > euScore;
+            const euWon = euScore > usScore;
+            
             return (
               <div key={match.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between">
@@ -144,9 +159,20 @@ export default function MatchHistory({ matches, playerId }: MatchHistoryProps) {
                         {resultText}
                       </span>
                       <span className="text-sm text-gray-600">
-                        {match.year} - Match {match.match_number}
+                        {match.year} - {tournament?.location || 'Unknown'}
                       </span>
                     </div>
+                    {tournament && (
+                      <div className="text-sm font-semibold mb-2">
+                        <span className={usWon ? 'text-red-700 font-bold' : ''}>
+                          USA {tournament.us_score}
+                        </span>
+                        {' - '}
+                        <span className={euWon ? 'text-blue-800 font-bold' : ''}>
+                          EU {tournament.eu_score}
+                        </span>
+                      </div>
+                    )}
                     
                     <div className="space-y-1">
                       <p className="font-semibold text-lg">

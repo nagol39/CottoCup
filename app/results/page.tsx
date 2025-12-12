@@ -23,11 +23,31 @@ export default function ResultsPage() {
   const searchParams = useSearchParams();
   const yearParam = searchParams.get('year');
   const [matches, setMatches] = useState<Match[]>([]);
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [year, setYear] = useState<number>(yearParam ? parseInt(yearParam) : 2025);
+
+  useEffect(() => {
+    fetchAvailableYears();
+  }, []);
 
   useEffect(() => {
     fetchMatches();
   }, [year]);
+
+  const fetchAvailableYears = async () => {
+    try {
+      const res = await fetch('/api/history');
+      if (res.ok) {
+        const data = await res.json();
+        const years = data.map((item: any) => item.year).sort((a: number, b: number) => b - a);
+        setAvailableYears(years);
+      }
+    } catch (err) {
+      console.error('Error fetching years:', err);
+      // Fallback to default years
+      setAvailableYears([2025, 2024, 2023, 2022, 2021, 2020]);
+    }
+  };
 
   const fetchMatches = async () => {
     try {
@@ -129,7 +149,7 @@ export default function ResultsPage() {
             onChange={(e) => setYear(parseInt(e.target.value))}
             className="px-4 py-2 border-2 border-gray-300 rounded text-lg"
           >
-            {[2025, 2024, 2023, 2022, 2021].map(y => (
+            {availableYears.map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
