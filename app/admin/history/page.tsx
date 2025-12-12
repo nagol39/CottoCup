@@ -298,8 +298,21 @@ export default function AdminHistory() {
     groupedMatches[m.game_type].push(m)
   })
 
-  const usaPlayers = players.filter(p => p.team === 'USA')
-  const europePlayers = players.filter(p => p.team === 'Europe')
+  const usaPlayers = players
+    .filter(p => p.team === 'USA')
+    .sort((a, b) => {
+      const aName = (a as any).first_name || a.name;
+      const bName = (b as any).first_name || b.name;
+      return aName.localeCompare(bName);
+    });
+  
+  const europePlayers = players
+    .filter(p => p.team === 'Europe')
+    .sort((a, b) => {
+      const aName = (a as any).first_name || a.name;
+      const bName = (b as any).first_name || b.name;
+      return aName.localeCompare(bName);
+    });
 
   return (
     <div className="p-8">
