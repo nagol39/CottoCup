@@ -70,6 +70,28 @@ export default function ResultsPage() {
     groupedByGameType[match.game_type].push(match);
   });
 
+  // Calculate scores
+  const calculateScores = (matchArray: Match[]) => {
+    let usaScore = 0;
+    let euScore = 0;
+
+    matchArray.forEach(match => {
+      if (match.result === 'W') {
+        usaScore += 1;
+      } else if (match.result === 'L') {
+        euScore += 1;
+      } else if (match.result === 'D') {
+        usaScore += 0.5;
+        euScore += 0.5;
+      }
+    });
+
+    return { usaScore, euScore };
+  };
+
+  // Calculate total scores
+  const totalScores = calculateScores(matches);
+
   const renderResultBox = (result: string, side: 'europe' | 'usa') => {
     if (!result) return <div className="w-16 h-16" />;
 
@@ -161,6 +183,23 @@ export default function ResultsPage() {
           </div>
         ) : (
           <div className="space-y-10">
+            {/* Overall Score */}
+            <div className="bg-gradient-to-r from-blue-100 to-red-100 border-4 border-gray-800 rounded-lg p-8 mb-8">
+              <div className="grid grid-cols-3 gap-8 items-center">
+                <div className="text-center">
+                  <p className="text-5xl font-bold text-blue-800">{totalScores.euScore}</p>
+                  <p className="text-2xl text-blue-900 font-semibold mt-2">🇪🇺 Europe</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-gray-600 font-semibold">Total Score</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-5xl font-bold text-red-700">{totalScores.usaScore}</p>
+                  <p className="text-2xl text-red-900 font-semibold mt-2">🇺🇸 USA</p>
+                </div>
+              </div>
+            </div>
+
             {/* Team Headers */}
             <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center pb-4 border-b-2">
               <div className="text-center">
@@ -175,10 +214,15 @@ export default function ResultsPage() {
             {/* Games Grouped by Type */}
             {Object.keys(groupedByGameType).sort().map(gameType => {
               const gameMatches = groupedByGameType[gameType];
+              const gameScores = calculateScores(gameMatches);
               return (
                 <div key={gameType} className="border rounded-lg overflow-hidden">
-                  <div className="bg-gray-800 text-white px-6 py-3">
+                  <div className="bg-gray-800 text-white px-6 py-3 flex justify-between items-center">
                     <h3 className="text-2xl font-bold uppercase">{gameType}</h3>
+                    <div className="flex gap-8 text-lg font-semibold">
+                      <span className="text-blue-300">EU {gameScores.euScore}</span>
+                      <span className="text-red-300">USA {gameScores.usaScore}</span>
+                    </div>
                   </div>
                   <div className="p-6 space-y-3">
                     {gameMatches.map(match => renderMatchRow(match))}
