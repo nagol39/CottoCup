@@ -75,6 +75,7 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
     scramble: { w: 0, l: 0, d: 0 },
     fourball: { w: 0, l: 0, d: 0 },
     foursomes: { w: 0, l: 0, d: 0 },
+    modified_alternate_shot: { w: 0, l: 0, d: 0 },
     tip_n_rip: { w: 0, l: 0, d: 0 }
   };
 
@@ -187,6 +188,7 @@ export default async function PlayerPage({ params }: { params: { slug: string } 
                     <p><strong>Scramble:</strong> {gameFormatStats.scramble.w}-{gameFormatStats.scramble.l}-{gameFormatStats.scramble.d}</p>
                     <p><strong>Four-Ball:</strong> {gameFormatStats.fourball.w}-{gameFormatStats.fourball.l}-{gameFormatStats.fourball.d}</p>
                     <p><strong>Foursomes:</strong> {gameFormatStats.foursomes.w}-{gameFormatStats.foursomes.l}-{gameFormatStats.foursomes.d}</p>
+                    <p><strong>Modified Alternate Shot:</strong> {gameFormatStats.modified_alternate_shot.w}-{gameFormatStats.modified_alternate_shot.l}-{gameFormatStats.modified_alternate_shot.d}</p>
                     <p><strong>Tip N Rip:</strong> {gameFormatStats.tip_n_rip.w}-{gameFormatStats.tip_n_rip.l}-{gameFormatStats.tip_n_rip.d}</p>
                   </div>
                 </div>

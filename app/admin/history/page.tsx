@@ -391,6 +391,7 @@ export default function AdminHistory() {
               <option value="fourball">Fourball</option>
               <option value="foursomes">Foursomes</option>
               <option value="singles">Singles</option>
+              <option value="modified_alternate_shot">Modified Alternate Shot</option>
               <option value="tip_n_rip">Tip N Rip</option>
             </select>
           </div>
