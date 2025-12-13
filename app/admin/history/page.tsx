@@ -241,10 +241,11 @@ export default function AdminHistory() {
         })
       }
 
-      // Reset form
+      // Reset form but keep game_type
+      const previousGameType = matchForm.game_type
       setMatchForm({
         year: selectedYear,
-        game_type: 'scramble',
+        game_type: previousGameType,
         team1_player1_id: null,
         team1_player2_id: null,
         team2_player1_id: null,
