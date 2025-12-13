@@ -26,7 +26,7 @@ export default function MobileNav() {
           <span className="nav-link cursor-pointer text-white font-semibold px-6 py-3 transition bg-transparent group-hover:text-gray-900 rounded-none flex items-center">
             Information/Rules <span className="ml-2">&#9660;</span>
           </span>
-          <div className="absolute left-5 mt-4 w-48 bg-blue-100 border border-gray-200 rounded-b shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <div className="absolute left-5 top-full bg-blue-100 border border-gray-200 rounded-b shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none group-hover:pointer-events-auto">
             <Link href="/information" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Information</Link>
             <Link href="/game-format" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Game Format/Rules</Link>
             <Link href="/schedule" className="block px-4 py-3 text-gray-900 hover:bg-blue-900 hover:text-white transition">Schedule</Link>
